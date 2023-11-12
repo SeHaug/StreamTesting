@@ -30,4 +30,14 @@ class MultipartStreamParserTest {
         System.out.println(outputStream);
     }
 
+    @Test
+    public void test3() throws IOException {
+        InputStream inputStream = new ByteArrayInputStream("--MIN_MEGA_FEDE_BOUNDARYhejhesdsdhfsjhdkfjs\r\nkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfjkdfkshsdkjfhskjdhffksdfj\r\n--MIN_MEGA_FEDE_BOUNDARYcontentshålllo\r\n\r\nMessageMessageMessageMessageMessageMessageMessage--MIN_MEGA_FEDE_BOUNDARY--".getBytes(StandardCharsets.UTF_8));
+        OutputStream outputStream = new ByteArrayOutputStream();
+        byte[] boundary = "MIN_MEGA_FEDE_BOUNDARY".getBytes(StandardCharsets.UTF_8);
+        MultipartStreamParser multipartStreamParser = new MultipartStreamParser(inputStream, boundary, outputStream);
+        multipartStreamParser.stripFistPart();
+        System.out.println(outputStream);
+    }
+
 }
