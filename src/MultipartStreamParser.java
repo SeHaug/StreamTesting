@@ -4,30 +4,37 @@ import java.util.Arrays;
 public class MultipartStreamParser {
     private final byte CR = 13;
     private final byte LF = 10;
-    private final byte[] BOUNDARY_PREFIX = new byte[] {CR, LF, 45, 45};
-    private InputStream inputStream;
-    private OutputStream outputStream;
-    private final byte[] BOUNDARY;
-    private byte[] boundryWithPrefix;
-    private byte[] buffer;
+    private final InputStream inputStream;
+    private final OutputStream outputStream;
+    private final byte[] boundryWithPrefix;
+    private final byte[] buffer;
     private int head;
     private int tail;
 
     public MultipartStreamParser(InputStream inputStream, byte[] boundary, OutputStream outputStream) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
-        this.BOUNDARY = boundary;
-        this.buffer = new byte[BOUNDARY_PREFIX.length + boundary.length + 2];
+        byte[] boundaryPrefix = new byte[]{CR, LF, 45, 45};
+        this.buffer = new byte[boundaryPrefix.length + boundary.length + 2];
         this.head = 0;
         this.tail = 0;
-        boundryWithPrefix = new byte[BOUNDARY_PREFIX.length + boundary.length];
-        System.arraycopy(BOUNDARY_PREFIX, 0, boundryWithPrefix, 0, BOUNDARY_PREFIX.length);
-        System.arraycopy(BOUNDARY, 0, boundryWithPrefix, BOUNDARY_PREFIX.length, BOUNDARY.length);
+        boundryWithPrefix = new byte[boundaryPrefix.length + boundary.length];
+        System.arraycopy(boundaryPrefix, 0, boundryWithPrefix, 0, boundaryPrefix.length);
+        System.arraycopy(boundary, 0, boundryWithPrefix, boundaryPrefix.length, boundary.length);
 
 
     }
 
-    public void stripFistPart() throws IOException {
+    public void stripFistPart() {
+        try {
+            findBoundary();
+        } catch (IOException ioException) {
+            System.out.println(ioException.getMessage());
+        }
+
+    }
+
+    private void findBoundary() throws IOException {
         boolean found = false;
         do {
             tail = inputStream.read(buffer, head, buffer.length - head);
@@ -46,12 +53,19 @@ public class MultipartStreamParser {
                 }
             }
         } while (tail >= 0 && !found);
-        //SequenceInputStream sequenceInputStream = new SequenceInputStream(new ByteArrayInputStream(buffer), inputStream);
-        //outputStream.write(sequenceInputStream.readAllBytes());
-        outputStream.write(buffer);
+        if (!found) {
+            throw new RuntimeException("Boundary not found");
+        } else {
+            copy(inputStream, outputStream);
+        }
     }
 
     public void extractMessage() {
+        byte[] target = new byte[] {CR, LF, CR, LF};
+
+    }
+
+    public void removeEndBoundary() {
 
     }
 
@@ -72,5 +86,13 @@ public class MultipartStreamParser {
             }
         }
         return hits;
+    }
+
+    private void copy(InputStream source, OutputStream target) throws IOException {
+        byte[] buff = new byte[8192];
+        int length;
+        while ((length = source.read(buff)) > 0) {
+            target.write(buff, 0, length);
+        }
     }
 }
