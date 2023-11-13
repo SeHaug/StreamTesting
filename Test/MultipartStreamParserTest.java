@@ -2,9 +2,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class MultipartStreamParserTest {
 
@@ -14,7 +11,7 @@ class MultipartStreamParserTest {
         OutputStream outputStream = new ByteArrayOutputStream();
         byte[] boundary = "MIN_MEGA_FEDE_BOUNDARY".getBytes(StandardCharsets.UTF_8);
         MultipartStreamParser multipartStreamParser = new MultipartStreamParser(inputStream, boundary, outputStream);
-        multipartStreamParser.stripFistPart();
+        multipartStreamParser.extractMessage();
         System.out.println(outputStream);
 
 
@@ -26,7 +23,7 @@ class MultipartStreamParserTest {
         OutputStream outputStream = new ByteArrayOutputStream();
         byte[] boundary = "MIN_MEGA_FEDE_BOUNDARY".getBytes(StandardCharsets.UTF_8);
         MultipartStreamParser multipartStreamParser = new MultipartStreamParser(inputStream, boundary, outputStream);
-        multipartStreamParser.stripFistPart();
+        multipartStreamParser.extractMessage();
         System.out.println(outputStream);
     }
 
@@ -36,7 +33,7 @@ class MultipartStreamParserTest {
         OutputStream outputStream = new ByteArrayOutputStream();
         byte[] boundary = "MIN_MEGA_FEDE_BOUNDARY".getBytes(StandardCharsets.UTF_8);
         MultipartStreamParser multipartStreamParser = new MultipartStreamParser(inputStream, boundary, outputStream);
-        multipartStreamParser.stripFistPart();
+        multipartStreamParser.extractMessage();
         System.out.println(outputStream);
     }
 

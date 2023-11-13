@@ -22,11 +22,11 @@ public class MultipartStreamParser {
         System.arraycopy(boundary, 0, boundaryWithPrefix, boundaryPrefix.length, boundary.length);
     }
 
-    public void stripFistPart() {
+    public void extractMessage() {
         try {
-            //findBoundary();
+            byte[] target = new byte[] {CR, LF, CR, LF};
             findTarget(boundaryWithPrefix);
-            extractMessage();
+            findTarget(target);
             copy(inputStream, outputStream);
         } catch (IOException ioException) {
             System.out.println(ioException.getMessage());
@@ -41,6 +41,7 @@ public class MultipartStreamParser {
                 if (arrayEqualsHits(buffer, 0, boundaryWithPrefix, tail + head) == boundaryWithPrefix.length) {
                     found = true;
                 } else {
+
                     int pos = findByte(buffer, CR, head, tail);
                     if (pos >= 0) {
                         int hits = arrayEqualsHits(buffer, pos, boundaryWithPrefix, tail - pos);
@@ -59,20 +60,33 @@ public class MultipartStreamParser {
         }
     }
 
+    /**
+     * Used to search the stream for the target sequence of bytes
+     * @param target
+     * @throws IOException is thrown if target is not found
+     */
     private void findTarget(byte[] target) throws IOException {
         byte[] buff = new byte[target.length];
         boolean found = false;
         int head = 0;
         int tail;
         do {
+            // Read up to target.length of bytes into the buffer and set tail to be the number of bytes read
             tail = inputStream.read(buff, head, buff.length - head);
             if (tail > 0) {
+                // Check if the target is in the buffer begining from index 0 of the buffer
                 if (arrayEqualsHits(buff, 0, target, tail + head) == target.length) {
                     found = true;
                 } else {
+                    // Check if the first byte of the target is in the buffer
+                    //TODO - CR should not be hardcoded but instead index 0 of target.
                     int pos = findByte(buff, CR, head, tail);
                     if (pos >= 0) {
+                        // Check if the sequence after the first byte of the target matches the target
                         int hits = arrayEqualsHits(buff, pos, target, tail - pos);
+                        // if the tail of the buffer is reached before target.length in the check
+                        // we need to move it to the front of the buffer and set the head to the number
+                        // of hits in the check
                         if (pos + hits == tail) {
                             head = hits;
                             System.arraycopy(buff, pos, buff, 0, hits);
@@ -83,14 +97,7 @@ public class MultipartStreamParser {
         } while (tail >= 0 && !found);
         if (!found) {
             throw new RuntimeException("Target not found");
-        } else {
-            //copy(inputStream, outputStream);
         }
-    }
-
-    private void extractMessage() throws IOException {
-        byte[] target = new byte[] {CR, LF, CR, LF};
-        findTarget(target);
     }
 
     private void removeEndBoundary() {
